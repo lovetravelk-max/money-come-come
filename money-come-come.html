@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Money Come Come">
+<meta name="theme-color" content="#0a0a0a">
+<title>Money Come Come 🟡</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;600;700&family=Noto+Sans+HK:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black:   #0a0a0a;
+  --black2:  #141414;
+  --black3:  #1e1e1e;
+  --black4:  #2a2a2a;
+  --yellow:  #FFD700;
+  --yellow2: #FFC200;
+  --ghost-pink:   #FFB8FF;
+  --ghost-cyan:   #00FFFF;
+  --ghost-red:    #FF3333;
+  --ghost-orange: #FFB852;
+  --neon-blue:    #2121DE;
+  --neon-blue2:   #4444FF;
+  --green-ok: #39FF14;
+  --red-no:   #FF3333;
+  --text-bright: #FFFFFF;
+  --text-dim:    #777777;
+  --border-dim:  #333333;
+  --shadow-y: 0 0 16px rgba(255,215,0,0.3);
+  --radius: 4px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--black);
+  color: var(--text-bright);
+  min-height: 100vh; max-width: 430px;
+  margin: 0 auto; overflow-x: hidden;
+  background-image: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,0.012) 2px,rgba(255,255,255,0.012) 4px);
+}
+/* ── OVERLAY ── */
+#overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.9);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+#overlay.hidden { display: none; }
+.popup-card {
+  background: var(--black2);
+  border: 3px solid var(--yellow);
+  border-radius: var(--radius);
+  padding: 28px 22px 22px;
+  text-align: center;
+  box-shadow: 0 0 40px rgba(255,215,0,0.35);
+  max-width: 370px; width: 100%; position: relative;
+}
+.popup-card::before {
+  content: '👾  👾  👾';
+  position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+  font-size: 16px; background: var(--black2); padding: 0 8px;
+}
+.pac-anim { font-size: 52px; display: block; margin-bottom: 8px; animation: chomp 0.45s steps(2) infinite; }
+@keyframes chomp { 0%{transform:scaleX(1)} 50%{transform:scaleX(0.82)} 100%{transform:scaleX(1)} }
+.popup-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px; line-height: 1.8;
+  color: var(--yellow); margin-bottom: 14px;
+  text-shadow: 0 0 12px var(--yellow);
+}
+.popup-en { font-size: 13px; line-height: 1.75; color: var(--text-bright); margin-bottom: 12px; }
+.popup-hk {
+  font-size: 12px; line-height: 1.85; color: var(--ghost-cyan);
+  background: rgba(0,255,255,0.05); border: 1px solid rgba(0,255,255,0.2);
+  border-radius: var(--radius); padding: 12px 14px; margin-bottom: 18px;
+}
+.popup-btn {
+  background: var(--yellow); color: var(--black);
+  border: none; border-radius: var(--radius);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px; line-height: 1.7;
+  padding: 14px 16px; cursor: pointer; width: 100%;
+  box-shadow: 0 0 20px rgba(255,215,0,0.5); transition: all 0.15s;
+}
+.popup-btn:active { transform: scale(0.97); }
+/* ── HEADER ── */
+.app-header {
+  background: var(--black2);
+  border-bottom: 3px solid var(--neon-blue2);
+  box-shadow: 0 0 14px rgba(68,68,255,0.4);
+  padding: 48px 16px 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 10;
+}
+.app-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px; line-height: 1.6;
+  color: var(--yellow); text-shadow: 0 0 12px var(--yellow);
+}
+.app-title .sub { display: block; font-size: 7px; color: var(--ghost-pink); margin-top: 3px; text-shadow: 0 0 8px var(--ghost-pink); }
+.lives-pill {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px; color: var(--yellow);
+  background: var(--black3); border: 1.5px solid var(--yellow);
+  padding: 6px 10px; border-radius: var(--radius);
+  cursor: pointer; box-shadow: 0 0 8px rgba(255,215,0,0.25);
+}
+/* ── NAV ── */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 430px;
+  background: var(--black2); border-top: 3px solid var(--neon-blue2);
+  box-shadow: 0 0 12px rgba(68,68,255,0.35);
+  display: flex; z-index: 20;
+  padding-bottom: env(safe-area-inset-bottom, 4px);
+}
+.nav-btn {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 8px 0 5px;
+  border: none; background: transparent; cursor: pointer;
+  color: var(--text-dim);
+  font-family: 'Press Start 2P', monospace; font-size: 6px;
+  transition: all 0.2s; gap: 3px;
+}
+.nav-btn .ni { font-size: 18px; transition: transform 0.2s; }
+.nav-btn.active { color: var(--yellow); text-shadow: 0 0 8px var(--yellow); }
+.nav-btn.active .ni { transform: scale(1.18) translateY(-2px); filter: drop-shadow(0 0 4px var(--yellow)); }
+/* ── PAGES ── */
+.page { display: none; padding: 12px 12px 84px; }
+.page.active { display: block; }
+/* ── CARD ── */
+.card {
+  background: var(--black2); border: 2px solid var(--black4);
+  border-radius: var(--radius); padding: 16px 14px;
+  margin-bottom: 10px; position: relative; overflow: hidden;
+}
+.card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg,var(--neon-blue2),transparent 40%,transparent 60%,var(--neon-blue2));
+  opacity: 0.5;
+}
+.card-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px; line-height: 1.7; color: var(--yellow);
+  margin-bottom: 14px; text-shadow: 0 0 8px rgba(255,215,0,0.4);
+}
+/* ── SCORE BAR ── */
+.score-bar {
+  background: var(--black2); border: 2px solid var(--yellow);
+  border-radius: var(--radius); padding: 16px 16px 14px;
+  margin-bottom: 10px; box-shadow: var(--shadow-y); position: relative; overflow: hidden;
+}
+.score-bar::after { content:'🟡'; position:absolute; right:10px; bottom:6px; font-size:38px; opacity:0.1; }
+.sc-label { font-family:'Press Start 2P',monospace; font-size:7px; color:var(--text-dim); letter-spacing:1px; margin-bottom:6px; }
+.sc-value { font-family:'Press Start 2P',monospace; font-size:20px; color:var(--yellow); text-shadow:0 0 12px var(--yellow); letter-spacing:1px; }
+.sc-sub { font-family:'Press Start 2P',monospace; font-size:7px; color:var(--ghost-cyan); margin-top:6px; text-shadow:0 0 6px var(--ghost-cyan); }
+.mini-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px; }
+.mini-score { background:var(--black3); border:1.5px solid var(--black4); border-radius:var(--radius); padding:12px 12px 10px; }
+.mini-score .sc-label { font-size:6px; }
+.mini-score .sc-value { font-size:15px; }
+/* ── CALENDAR ── */
+.cal-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.cal-nav button {
+  background:var(--black3); border:1.5px solid var(--neon-blue2);
+  border-radius:var(--radius); padding:7px 14px;
+  font-family:'Press Start 2P',monospace; font-size:12px;
+  cursor:pointer; color:var(--neon-blue2); text-shadow:0 0 6px var(--neon-blue2);
+}
+.cal-nav button:active { background:var(--neon-blue2); color:var(--black); }
+.cal-month { font-family:'Press Start 2P',monospace; font-size:9px; color:var(--yellow); text-shadow:0 0 8px var(--yellow); }
+.cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+.cal-dow { text-align:center; font-family:'Press Start 2P',monospace; font-size:6px; color:var(--text-dim); padding:4px 0; }
+.cal-day {
+  aspect-ratio:1; border-radius:3px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  cursor:pointer; position:relative; transition:all 0.12s;
+  font-family:'Press Start 2P',monospace; font-size:8px;
+  color:var(--text-dim); background:var(--black3);
+}
+.cal-day.today { background:var(--neon-blue); color:var(--text-bright); box-shadow:0 0 8px var(--neon-blue2); }
+.cal-day.selected { background:var(--yellow); color:var(--black); box-shadow:0 0 10px var(--yellow); }
+.cal-day.quad-witch { background:#1a0033; border:1.5px solid var(--ghost-pink); color:var(--ghost-pink); }
+.cal-day.monthly-opts { background:#0d1a00; border:1.5px solid var(--green-ok); color:var(--green-ok); }
+.cal-day.has-event::before { content:'⚡'; position:absolute; top:0; left:1px; font-size:7px; line-height:1; }
+.cal-day.quad-witch::after { content:'🧙'; position:absolute; top:0; right:1px; font-size:8px; line-height:1; }
+.cal-day.monthly-opts::after { content:'📅'; position:absolute; top:0; right:1px; font-size:7px; line-height:1; }
+.cal-dot { width:5px; height:5px; border-radius:50%; margin-top:2px; }
+.cal-dot.profit { background:var(--green-ok); box-shadow:0 0 4px var(--green-ok); }
+.cal-dot.loss { background:var(--ghost-red); box-shadow:0 0 4px var(--ghost-red); }
+.cal-legend { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; padding-top:10px; border-top:1px solid var(--black4); }
+.leg { display:flex; align-items:center; gap:4px; font-size:10px; color:var(--text-dim); }
+.day-detail {
+  background:var(--black3); border:2px solid var(--neon-blue2);
+  border-radius:var(--radius); padding:14px; margin-top:8px;
+  box-shadow:0 0 10px rgba(68,68,255,0.25);
+}
+.day-detail h3 { font-family:'Press Start 2P',monospace; font-size:8px; color:var(--yellow); margin-bottom:10px; text-shadow:0 0 6px var(--yellow); }
+.day-stat { display:flex; justify-content:space-between; font-size:12px; padding:5px 0; border-bottom:1px solid var(--black4); color:var(--text-dim); }
+.day-stat:last-of-type { border-bottom:none; }
+.day-stat span:last-child { font-weight:700; color:var(--text-bright); }
+.event-badge { margin-top:8px; padding:7px 10px; border-radius:var(--radius); font-size:11px; font-weight:700; display:flex; align-items:flex-start; gap:6px; line-height:1.5; }
+.event-badge.econ { background:rgba(255,215,0,0.08); border:1px solid var(--yellow); color:var(--yellow); }
+.event-badge.quad { background:rgba(255,184,255,0.08); border:1px solid var(--ghost-pink); color:var(--ghost-pink); }
+.event-badge.mopt { background:rgba(57,255,20,0.07); border:1px solid var(--green-ok); color:var(--green-ok); }
+/* ── CHECKLIST ── */
+.check-item { display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-bottom:1px solid var(--black3); cursor:pointer; }
+.check-item:last-child { border-bottom:none; }
+.check-box {
+  width:24px; height:24px; border-radius:3px;
+  border:2px solid var(--black4); flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--black3); font-size:14px; transition:all 0.15s;
+}
+.check-box.checked { background:var(--yellow); border-color:var(--yellow); color:var(--black); box-shadow:0 0 8px rgba(255,215,0,0.4); }
+.check-label { font-size:13px; font-weight:700; color:var(--text-bright); line-height:1.4; }
+.check-sub { font-size:11px; color:var(--text-dim); margin-top:2px; }
+/* ── GHOST MOOD ── */
+.ghost-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
+.ghost-btn {
+  border:2px solid var(--black4); border-radius:6px;
+  padding:8px 2px; cursor:pointer;
+  text-align:center; background:var(--black3); transition:all 0.15s;
+  display:flex; flex-direction:column; align-items:center;
+}
+.ghost-icon { font-size:26px; }
+.ghost-sub { font-family:'Press Start 2P',monospace; font-size:6px; color:var(--text-dim); margin-top:4px; }
+.ghost-btn.sel-5 { border-color:var(--ghost-cyan); background:rgba(0,255,255,0.07); box-shadow:0 0 10px rgba(0,255,255,0.25); }
+.ghost-btn.sel-4 { border-color:var(--yellow); background:rgba(255,215,0,0.07); box-shadow:0 0 10px rgba(255,215,0,0.25); }
+.ghost-btn.sel-3 { border-color:var(--ghost-orange); background:rgba(255,184,82,0.07); }
+.ghost-btn.sel-2 { border-color:var(--ghost-pink); background:rgba(255,184,255,0.07); }
+.ghost-btn.sel-1 { border-color:var(--ghost-red); background:rgba(255,51,51,0.07); box-shadow:0 0 10px rgba(255,51,51,0.25); }
+/* ── SLIDER ── */
+.slider-row { display:flex; justify-content:space-between; font-size:11px; color:var(--text-dim); margin-bottom:8px; }
+.slider-val { font-family:'Press Start 2P',monospace; font-size:13px; color:var(--yellow); text-shadow:0 0 6px var(--yellow); }
+input[type=range] { -webkit-appearance:none; width:100%; height:6px; border-radius:3px; background:var(--black4); outline:none; cursor:pointer; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:22px; height:22px; border-radius:50%; background:var(--yellow); border:2px solid var(--black); cursor:pointer; box-shadow:0 0 8px rgba(255,215,0,0.5); }
+/* ── POWER BAR ── */
+.power-bar-wrap { background:var(--black3); border-radius:3px; height:18px; overflow:hidden; margin:10px 0 6px; border:1px solid var(--black4); position:relative; }
+.power-bar-fill { height:100%; border-radius:2px; transition:width 0.5s,background 0.4s; position:relative; z-index:1; }
+.readiness-signal { text-align:center; font-family:'Press Start 2P',monospace; font-size:8px; line-height:1.8; padding:10px 0 4px; }
+/* ── CAUTION ── */
+.caution-box { background:rgba(255,184,82,0.07); border:2px solid var(--ghost-orange); border-radius:var(--radius); padding:12px 14px; font-size:12px; color:var(--ghost-orange); margin-top:10px; display:none; line-height:1.65; }
+.caution-box.show { display:block; }
+/* ── TOGGLE PILLS ── */
+.toggle-row { display:flex; gap:8px; }
+.toggle-pill {
+  flex:1; padding:10px 4px; text-align:center;
+  border:2px solid var(--black4); border-radius:var(--radius);
+  font-family:'Press Start 2P',monospace; font-size:7px; line-height:1.6;
+  cursor:pointer; transition:all 0.15s;
+  background:var(--black3); color:var(--text-dim);
+}
+.toggle-pill.active { background:var(--yellow); border-color:var(--yellow); color:var(--black); box-shadow:0 0 10px rgba(255,215,0,0.35); }
+/* ── PILL TAGS ── */
+.pill-group { display:flex; flex-wrap:wrap; gap:6px; }
+.pill-btn {
+  padding:7px 12px; border-radius:var(--radius);
+  border:1.5px solid var(--black4);
+  font-family:'Press Start 2P',monospace; font-size:7px;
+  cursor:pointer; background:var(--black3); color:var(--text-dim); transition:all 0.15s;
+}
+.pill-btn.cjk {
+  font-family:'Noto Sans HK','Nunito',sans-serif; font-size:13px; font-weight:700;
+  padding:6px 12px;
+}
+.pill-btn.active { background:var(--neon-blue2); border-color:var(--neon-blue2); color:var(--text-bright); box-shadow:0 0 8px rgba(68,68,255,0.4); }
+/* ── AMD BLOCK ── */
+.amd-block { background:var(--black3); border:2px solid var(--neon-blue2); border-radius:var(--radius); padding:14px; margin-bottom:10px; box-shadow:0 0 10px rgba(68,68,255,0.18); }
+.amd-block-title { font-family:'Press Start 2P',monospace; font-size:8px; color:var(--ghost-cyan); margin-bottom:12px; text-shadow:0 0 8px var(--ghost-cyan); display:flex; justify-content:space-between; align-items:center; }
+.amd-phase-row { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.amd-phase { background:var(--black2); border-radius:var(--radius); border:2px solid var(--black4); padding:12px 4px; text-align:center; cursor:pointer; transition:all 0.15s; }
+.amd-phase .amd-icon { font-size:22px; display:block; margin-bottom:4px; }
+.amd-phase .amd-label { font-family:'Press Start 2P',monospace; font-size:5px; color:var(--text-dim); line-height:1.5; white-space:nowrap; }
+.amd-phase.active { background:rgba(0,255,255,0.07); border-color:var(--ghost-cyan); box-shadow:0 0 12px rgba(0,255,255,0.25); }
+.amd-phase.active .amd-label { color:var(--ghost-cyan); }
+/* ── CONFLUENCE ── */
+.conf-counter { background:var(--black3); border:2px solid var(--yellow); border-radius:var(--radius); padding:12px 16px; display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; box-shadow:var(--shadow-y); }
+.conf-label { font-family:'Press Start 2P',monospace; font-size:7px; color:var(--text-dim); line-height:1.6; }
+.conf-num { font-family:'Press Start 2P',monospace; font-size:28px; color:var(--yellow); text-shadow:0 0 12px var(--yellow); }
+.conf-denom { font-family:'Press Start 2P',monospace; font-size:13px; color:var(--text-dim); }
+/* ── FORM ── */
+.field-group { margin-bottom:14px; }
+.field-label { font-family:'Press Start 2P',monospace; font-size:7px; color:var(--text-dim); margin-bottom:7px; display:block; letter-spacing:0.5px; }
+input[type=text],input[type=number],textarea {
+  width:100%; border:2px solid var(--black4); border-radius:var(--radius);
+  padding:11px 13px; font-family:'Nunito',sans-serif; font-size:14px; font-weight:600;
+  color:var(--text-bright); background:var(--black3); outline:none; transition:border-color 0.15s;
+}
+input:focus,textarea:focus { border-color:var(--yellow); box-shadow:0 0 8px rgba(255,215,0,0.18); }
+textarea { min-height:70px; resize:vertical; }
+/* ── PHOTO ── */
+.photo-upload-area { border:2px dashed var(--black4); border-radius:var(--radius); background:var(--black3); padding:16px; text-align:center; cursor:pointer; transition:all 0.2s; position:relative; }
+.photo-upload-area:hover { border-color:var(--ghost-cyan); background:rgba(0,255,255,0.03); }
+.photo-upload-area input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+.photo-upload-icon { font-size:26px; margin-bottom:4px; }
+.photo-upload-text { font-family:'Press Start 2P',monospace; font-size:7px; color:var(--text-dim); line-height:1.6; }
+.photo-preview { max-width:100%; border-radius:var(--radius); margin-top:10px; display:none; border:2px solid var(--ghost-cyan); box-shadow:0 0 10px rgba(0,255,255,0.2); }
+/* ── SESSION LOCK ── */
+.session-lock { background:rgba(255,184,82,0.07); border:2px solid var(--ghost-orange); border-radius:var(--radius); padding:12px 14px; font-family:'Press Start 2P',monospace; font-size:7px; line-height:1.9; color:var(--ghost-orange); text-align:center; margin-top:10px; display:none; }
+.session-lock.show { display:block; }
+/* ── TRADE ENTRY ── */
+.trade-entry { background:var(--black3); border-radius:var(--radius); padding:10px 12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--black4); }
+.te-sym { font-weight:700; font-size:14px; color:var(--text-bright); }
+.te-meta { font-size:11px; color:var(--text-dim); margin-top:2px; }
+.te-pnl { font-family:'Press Start 2P',monospace; font-size:12px; }
+.te-pnl.pos { color:var(--green-ok); text-shadow:0 0 6px var(--green-ok); }
+.te-pnl.neg { color:var(--ghost-red); text-shadow:0 0 6px var(--ghost-red); }
+.te-withdraw { font-family:'Press Start 2P',monospace; font-size:7px; color:var(--ghost-cyan); margin-top:3px; }
+.te-thumb { width:36px; height:36px; border-radius:4px; object-fit:cover; margin-right:8px; border:1.5px solid var(--ghost-cyan); flex-shrink:0; }
+/* ── BUTTON ── */
+.btn-primary { background:var(--yellow); color:var(--black); border:none; border-radius:var(--radius); font-family:'Press Start 2P',monospace; font-size:9px; line-height:1.7; padding:15px; width:100%; cursor:pointer; transition:all 0.15s; margin-top:8px; box-shadow:0 0 20px rgba(255,215,0,0.4); }
+.btn-primary:active { transform:scale(0.97); }
+.btn-primary:disabled { background:var(--black4); color:var(--text-dim); box-shadow:none; cursor:not-allowed; }
+.convert-hint { font-family:'Press Start 2P',monospace; font-size:7px; color:var(--ghost-cyan); margin-top:6px; line-height:1.6; }
+/* ── TOAST ── */
+#toast { position:fixed; bottom:88px; left:50%; transform:translateX(-50%); background:var(--yellow); color:var(--black); padding:11px 20px; border-radius:var(--radius); font-family:'Press Start 2P',monospace; font-size:8px; line-height:1.6; z-index:999; white-space:nowrap; box-shadow:0 0 20px rgba(255,215,0,0.5); transition:opacity 0.3s; display:none; }
+</style>
+</head>
+<body>
+
+<!-- POPUP -->
+<div id="overlay">
+  <div class="popup-card">
+    <!-- PAC-MAN SVG logo -->
+    <div style="display:flex;justify-content:center;align-items:center;margin-bottom:10px;gap:6px">
+      <svg id="pacSvg" width="58" height="58" viewBox="0 0 58 58" style="overflow:visible">
+        <circle cx="29" cy="29" r="27" fill="#FFD700"/>
+        <!-- eye -->
+        <circle cx="34" cy="16" r="3.5" fill="#0a0a0a"/>
+        <!-- mouth - animated open/close via JS -->
+        <path id="pacMouth" fill="#0a0a0a"/>
+      </svg>
+      <span style="font-size:22px;letter-spacing:4px">👾👾👾</span>
+    </div>
+    <div class="popup-title">MONEY COME COME<br>— PAUSE FIRST —</div>
+    <p class="popup-en">
+      👾 The ghosts are watching.<br>
+      Before you eat any dots today —<br>
+      check your power level.<br><br>
+      <strong>A tired PAC-MAN always gets caught.</strong><br>
+      Only enter the maze when you're fully powered up.
+    </p>
+    <div class="popup-hk">
+      冷靜一秒，問自己：<br>
+      「我依家係 <em>滿血狀態</em> 入市，<br>
+      定係 <em>殘血衝關</em>？」<br><br>
+      食鬼要靠能量豆先得 🔵<br>
+      市場每日都喺度，等你充好電先再嚟。💛
+    </div>
+    <button class="popup-btn" onclick="closeOverlay()">POWER UP ——  INSERT COIN 🟡</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="app-header">
+  <div class="app-title">
+    MONEY COME COME
+    <span class="sub">🟡 EAT PIPS · DODGE GHOSTS</span>
+  </div>
+  <div class="lives-pill" onclick="goToday()">▶ TODAY</div>
+</div>
+
+<!-- ══ CALENDAR ══ -->
+<div id="page-calendar" class="page active">
+  <div class="card">
+    <div class="cal-nav">
+      <button onclick="changeMonth(-1)">◀</button>
+      <div class="cal-month" id="calMonthLabel"></div>
+      <button onclick="changeMonth(1)">▶</button>
+    </div>
+    <div class="cal-grid" id="calDow"></div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-legend">
+      <div class="leg">⚡<span>High Impact</span></div>
+      <div class="leg">🧙<span>Quad Witch</span></div>
+      <div class="leg">📅<span>Monthly Opts</span></div>
+      <div class="leg" style="color:var(--green-ok)">●<span>Win</span></div>
+      <div class="leg" style="color:var(--ghost-red)">●<span>Loss</span></div>
+    </div>
+  </div>
+  <div id="dayDetail" style="display:none"></div>
+  <div class="card">
+    <div class="card-title">👾 DOT LOG — RECENT HUNTS</div>
+    <div id="tradeHistory"></div>
+    <div id="noTrades" style="font-family:'Press Start 2P',monospace;font-size:7px;color:var(--text-dim);text-align:center;padding:18px 0;line-height:2.2">NO DOTS EATEN YET<br>GO HUNT SOME PIPS! 🟡</div>
+  </div>
+</div>
+
+<!-- ══ PRE-TRADE ══ -->
+<div id="page-pretrade" class="page">
+  <div class="card">
+    <div class="card-title">👻 GHOST RADAR — YOUR VIBE</div>
+    <div class="ghost-grid" id="ghostGrid">
+      <div class="ghost-btn" onclick="setMood(this,5)" data-sel="sel-5">
+        <span class="ghost-icon">👻</span>
+        <span class="ghost-sub" style="color:var(--ghost-cyan)">TURBO</span>
+      </div>
+      <div class="ghost-btn" onclick="setMood(this,4)" data-sel="sel-4">
+        <span class="ghost-icon">🟡</span>
+        <span class="ghost-sub" style="color:var(--yellow)">GOOD</span>
+      </div>
+      <div class="ghost-btn" onclick="setMood(this,3)" data-sel="sel-3">
+        <span class="ghost-icon">🔵</span>
+        <span class="ghost-sub" style="color:var(--ghost-orange)">MEH</span>
+      </div>
+      <div class="ghost-btn" onclick="setMood(this,2)" data-sel="sel-2">
+        <span class="ghost-icon">😵</span>
+        <span class="ghost-sub" style="color:var(--ghost-pink)">TIRED</span>
+      </div>
+      <div class="ghost-btn" onclick="setMood(this,1)" data-sel="sel-1">
+        <span class="ghost-icon">💀</span>
+        <span class="ghost-sub" style="color:var(--ghost-red)">REKT</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔋 POWER LEVEL</div>
+    <div class="slider-row">
+      <span>💀 EMPTY</span>
+      <span class="slider-val" id="energyVal">5</span>
+      <span>🔥 FULL</span>
+    </div>
+    <input type="range" min="1" max="10" value="5" id="energySlider" step="1" oninput="updateEnergy(this.value)">
+    <div class="caution-box" id="cautionBox">
+      ⚠️ WARNING: LOW POWER DETECTED<br><br>
+      Running on fumes — a ghost WILL catch you.<br>
+      Cut lot size 50% or skip this session.<br><br>
+      好好休息，下次再戰！ 👾
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">✅ PRE-GAME CHECKLIST</div>
+    <div id="preChecklist"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔵 POWER PELLET STATUS</div>
+    <div class="power-bar-wrap">
+      <div class="power-bar-fill" id="readinessFill" style="width:0%"></div>
+    </div>
+    <div class="readiness-signal" id="readinessSignal" style="color:var(--text-dim)">COMPLETE CHECKLIST TO POWER UP</div>
+  </div>
+</div>
+
+<!-- ══ TA CHECK ══ -->
+<div id="page-ta" class="page">
+  <div class="card">
+    <div class="card-title">⚡ HUNT STYLE</div>
+    <div class="toggle-row">
+      <div class="toggle-pill active" id="ttShort" onclick="setTradeType('short')">⚡ SCALP<br>SHORT TERM</div>
+      <div class="toggle-pill" id="ttLong" onclick="setTradeType('long')">🌱 SWING<br>LONG TERM</div>
+    </div>
+  </div>
+
+  <div class="amd-block">
+    <div class="amd-block-title">
+      <span>📊 MARKET PHASE (AMD)</span>
+      <span style="font-size:7px;color:var(--text-dim)">WHERE IS PRICE?</span>
+    </div>
+    <div class="amd-phase-row">
+      <div class="amd-phase" id="amdA" onclick="selectAMD('A')">
+        <span class="amd-icon">🌀</span>
+        <span class="amd-label">ACCUMULATION</span>
+      </div>
+      <div class="amd-phase" id="amdM" onclick="selectAMD('M')">
+        <span class="amd-icon">⚡</span>
+        <span class="amd-label">MANIPULATION</span>
+      </div>
+      <div class="amd-phase" id="amdD" onclick="selectAMD('D')">
+        <span class="amd-icon">🚀</span>
+        <span class="amd-label">DISTRIBUTION</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 REVIEW CHECKLIST</div>
+    <div class="pill-group">
+      <div class="pill-btn" onclick="togglePill(this)">WEEKLY</div>
+      <div class="pill-btn" onclick="togglePill(this)">DAILY</div>
+      <div class="pill-btn" onclick="togglePill(this)">4HR</div>
+      <div class="pill-btn" onclick="togglePill(this)">1HR</div>
+      <div class="pill-btn" onclick="togglePill(this)">15min</div>
+      <div class="pill-btn" onclick="togglePill(this)">3min</div>
+      <div class="pill-btn cjk" onclick="togglePill(this)">老貓</div>
+      <div class="pill-btn" onclick="togglePill(this)">WTT 15min</div>
+      <div class="pill-btn" onclick="togglePill(this)">WTT 2H</div>
+    </div>
+  </div>
+
+  <div class="conf-counter">
+    <div>
+      <div class="conf-label"><span style="font-family:'Noto Sans HK',sans-serif;font-size:13px;font-weight:700">8要素</span> CONFLUENCE</div>
+      <div style="font-family:'Press Start 2P',monospace;font-size:6px;color:var(--text-dim);margin-top:4px;line-height:1.6">DOTS CONFIRMED</div>
+    </div>
+    <div><span class="conf-num" id="confScore">0</span><span class="conf-denom">/8</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔭 <span style="font-family:'Noto Sans HK',sans-serif;font-size:13px;font-weight:700;vertical-align:middle">8要素</span> STRATEGY GRID</div>
+    <div id="elemChecklist"></div>
+  </div>
+</div>
+
+<!-- ══ LOG TRADE ══ -->
+<div id="page-log" class="page">
+  <div class="score-bar">
+    <div class="sc-label">TOTAL SCORE (HKD)</div>
+    <div class="sc-value" id="totalPnl">HK$0</div>
+    <div class="sc-sub" id="totalSavedBar">🏦 BANKED: HK$0</div>
+  </div>
+  <div class="mini-row">
+    <div class="mini-score"><div class="sc-label">DOTS TODAY</div><div class="sc-value" id="todayCount">0</div></div>
+    <div class="mini-score"><div class="sc-label">WIN RATE</div><div class="sc-value" id="winRate">—</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🟡 LOG A HUNT</div>
+
+    <div class="field-group">
+      <span class="field-label">SESSION</span>
+      <div class="toggle-row">
+        <div class="toggle-pill active" id="sessAM" onclick="setSession('AM')">🌅 AM<br>SESSION</div>
+        <div class="toggle-pill" id="sessPM" onclick="setSession('PM')">🌆 PM<br>SESSION</div>
+      </div>
+      <div class="session-lock" id="sessionLockMsg"></div>
+    </div>
+
+    <div class="field-group">
+      <span class="field-label">INSTRUMENT (WHAT DID YOU HUNT?)</span>
+      <input type="text" id="instrument" placeholder="XAUUSD, NQ, HSI...">
+    </div>
+
+    <div class="field-group">
+      <span class="field-label">DIRECTION</span>
+      <div class="toggle-row">
+        <div class="toggle-pill active" id="dirLong" onclick="setDirection('Long')">📈 LONG</div>
+        <div class="toggle-pill" id="dirShort" onclick="setDirection('Short')">📉 SHORT</div>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <span class="field-label">CURRENCY</span>
+      <div class="toggle-row">
+        <div class="toggle-pill active" id="curHKD" onclick="setCurrency('HKD')">HKD 🇭🇰</div>
+        <div class="toggle-pill" id="curUSD" onclick="setCurrency('USD')">USD 🇺🇸</div>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <span class="field-label">DOTS EATEN / LOST (P&L)</span>
+      <input type="number" id="pnlAmount" placeholder="e.g. 800 or -250" step="any" oninput="updateConvertedHint()">
+      <div class="convert-hint" id="convertedHint"></div>
+    </div>
+
+    <div class="field-group">
+      <span class="field-label">ACCOUNT TYPE</span>
+      <div class="toggle-row">
+        <div class="toggle-pill active" id="accProp" onclick="setAccount('PROP')">🏢 PROP FIRM</div>
+        <div class="toggle-pill" id="accCFD" onclick="setAccount('CFD')">📊 CFD</div>
+        <div class="toggle-pill" id="accPaper" onclick="setAccount('PAPER')">📝 PAPER</div>
+      </div>
+      <div id="accountBadge" style="font-family:'Press Start 2P',monospace;font-size:7px;color:var(--ghost-cyan);margin-top:8px;line-height:1.7">🏢 PROP — Withdrawal = actual drawdown from firm</div>
+    </div>
+
+    <div class="field-group">
+      <span class="field-label">BANK WITHDRAWAL (ACTUAL AMOUNT 🏦)</span>
+      <input type="number" id="withdrawAmt" placeholder="e.g. 500  (leave 0 if none)" step="any" min="0" oninput="updateWithdrawHint()">
+      <div id="withdrawHint" style="font-family:'Press Start 2P',monospace;font-size:7px;color:var(--ghost-cyan);margin-top:6px;line-height:1.7"></div>
+    </div>
+
+    <div class="field-group">
+      <span class="field-label">CHART SCREENSHOT 📸</span>
+      <div class="photo-upload-area">
+        <input type="file" accept="image/*" id="photoInput" onchange="handlePhoto(this)">
+        <div class="photo-upload-icon">📷</div>
+        <div class="photo-upload-text">TAP TO SNAP YOUR CHART</div>
+      </div>
+      <img class="photo-preview" id="photoPreview" alt="Chart">
+      <div id="photoName" style="font-family:'Press Start 2P',monospace;font-size:7px;color:var(--text-dim);margin-top:4px;line-height:1.6"></div>
+    </div>
+
+    <div class="field-group">
+      <span class="field-label">DEBRIEF — WHAT DID THE MAZE TEACH YOU?</span>
+      <textarea id="tradeNotes" placeholder="What pattern? What worked? What did the ghost teach you?"></textarea>
+    </div>
+
+    <button class="btn-primary" id="logBtn" onclick="logTrade()">🟡 EAT THIS DOT — SAVE HUNT</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="bottom-nav">
+  <button class="nav-btn active" id="nav-calendar" onclick="switchTab('calendar')">
+    <span class="ni">📅</span>MAP
+  </button>
+  <button class="nav-btn" id="nav-pretrade" onclick="switchTab('pretrade')">
+    <span class="ni">🔋</span>POWER
+  </button>
+  <button class="nav-btn" id="nav-ta" onclick="switchTab('ta')">
+    <span class="ni">🔭</span>RADAR
+  </button>
+  <button class="nav-btn" id="nav-log" onclick="switchTab('log')">
+    <span class="ni">🟡</span>HUNT
+  </button>
+</div>
+<div id="toast"></div>
+
+<script>
+const USD_TO_HKD = 7.82;
+const MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+const DOWS = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+
+let trades = [];
+try { trades = JSON.parse(localStorage.getItem('mcc_v3') || '[]'); } catch(e) {}
+let calDate = new Date(), selectedDate = null;
+let currentSession='AM', currentDirection='Long', currentCurrency='HKD';
+let currentMood=0, currentEnergy=5, currentTradeType='short', selectedAMD=null;
+let currentPhotoData=null, currentPhotoName='', currentAccount='PROP';
+let preChecked={}, elemChecked={};
+
+// ── ECON EVENTS ──
+const econEvents={};
+(function(){
+  const y=new Date().getFullYear();
+  [['01','31','FOMC'],['02','07','NFP'],['03','12','CPI'],['03','19','FOMC'],
+   ['04','04','NFP'],['04','10','CPI'],['05','02','NFP'],['05','07','FOMC'],
+   ['05','13','CPI'],['06','06','NFP'],['06','11','CPI'],['06','18','FOMC'],
+   ['07','02','NFP'],['07','11','CPI'],['07','30','FOMC'],['08','01','NFP'],
+   ['08','12','CPI'],['09','05','NFP'],['09','10','CPI'],['09','17','FOMC'],
+   ['10','03','NFP'],['10','13','CPI'],['11','05','FOMC'],['11','07','NFP'],
+   ['11','12','CPI'],['12','05','NFP'],['12','10','CPI'],['12','17','FOMC']
+  ].forEach(([m,d,n])=>{ econEvents[`${y}-${m}-${d}`]=n; });
+})();
+
+// ── QUAD WITCHING & MONTHLY OPTIONS (3rd Friday) ──
+const quadWitchDates={}, monthlyOptsDates={};
+(function(){
+  const y=new Date().getFullYear();
+  for(let m=0;m<12;m++){
+    let fc=0,tf=null;
+    for(let d=1;d<=31;d++){
+      const dt=new Date(y,m,d);
+      if(dt.getMonth()!==m) break;
+      if(dt.getDay()===5){fc++;if(fc===3){tf=d;break;}}
+    }
+    if(!tf) continue;
+    const key=`${y}-${String(m+1).padStart(2,'0')}-${String(tf).padStart(2,'0')}`;
+    if([2,5,8,11].includes(m)) quadWitchDates[key]=true;
+    else monthlyOptsDates[key]=true;
+  }
+})();
+
+// ── CHECKLISTS ──
+const preCheckItems=[
+  {id:'p1',label:'Slept 6+ hours',sub:'殘血唔好入市 — tired PAC-MAN gets caught'},
+  {id:'p2',label:'Fed & hydrated',sub:'Power your brain before the hunt'},
+  {id:'p3',label:'Urgent work is cleared',sub:'No ghost chasing you from behind'},
+  {id:'p4',label:'NOT revenge trading',sub:'唔係報仇 — cold head only'},
+  {id:'p5',label:'Checked today\'s econ events',sub:'Know the traps on the map'},
+  {id:'p6',label:'Stop loss is pre-planned',sub:'Know your exit before entry'},
+  {id:'p7',label:'Can handle a loss emotionally',sub:'Never bet lives you can\'t spare'},
+  {id:'p8',label:'Mind is present & focused',sub:'No distractions in the maze'},
+];
+const elemItems=[
+  {id:'e1',label:'趨勢 or 盤整',sub:'Trend or Consolidation regime?'},
+  {id:'e2',label:'FIB 618',sub:'Fibonacci 61.8% aligned'},
+  {id:'e3',label:'動能',sub:'Momentum confirming direction'},
+  {id:'e4',label:'交易時間',sub:'In optimal session window'},
+  {id:'e5',label:'OB',sub:'Order Block — valid reaction zone'},
+  {id:'e6',label:'逆動',sub:'Counter-move / mitigation confirmed'},
+  {id:'e7',label:'POC / VAL / 吸引力掃瞄',sub:'Value area attraction in play'},
+  {id:'e8',label:'流動性掠奪',sub:'Liquidity grab / sweep confirmed'},
+];
+
+// ── INIT ──
+window.onload=function(){
+  renderCalendar(); renderPreChecklist(); renderElemChecklist();
+  renderTradeHistory(); updateTotals(); updateReadiness(); checkSessionLock();
+  // PAC-MAN mouth animation
+  animatePacMan();
+};
+function closeOverlay(){ document.getElementById('overlay').classList.add('hidden'); }
+
+// PAC-MAN SVG chomp
+function animatePacMan(){
+  const mouth = document.getElementById('pacMouth');
+  if(!mouth) return;
+  let open = true;
+  const cx=29, cy=29, r=27;
+  function drawMouth(){
+    if(open){
+      // open mouth wedge
+      const angle = 35 * Math.PI/180;
+      const x1 = cx + r*Math.cos(-angle), y1 = cy + r*Math.sin(-angle);
+      const x2 = cx + r*Math.cos(angle),  y2 = cy + r*Math.sin(angle);
+      mouth.setAttribute('d',`M${cx},${cy} L${x1},${y1} A${r},${r},0,1,1,${x2},${y2} Z`);
+    } else {
+      // nearly closed (thin slice)
+      const angle = 4 * Math.PI/180;
+      const x1 = cx + r*Math.cos(-angle), y1 = cy + r*Math.sin(-angle);
+      const x2 = cx + r*Math.cos(angle),  y2 = cy + r*Math.sin(angle);
+      mouth.setAttribute('d',`M${cx},${cy} L${x1},${y1} A${r},${r},0,1,1,${x2},${y2} Z`);
+    }
+    open = !open;
+  }
+  drawMouth();
+  setInterval(drawMouth, 300);
+}
+
+// Account type
+function setAccount(type){
+  currentAccount = type;
+  document.getElementById('accProp').classList.toggle('active', type==='PROP');
+  document.getElementById('accCFD').classList.toggle('active',  type==='CFD');
+  document.getElementById('accPaper').classList.toggle('active', type==='PAPER');
+  const msgs = {
+    PROP: '🏢 PROP — Withdrawal = actual drawdown from firm',
+    CFD:  '📊 CFD — Withdrawal = cash you move to bank',
+    PAPER:'📝 PAPER — No real money, tracking only'
+  };
+  document.getElementById('accountBadge').textContent = msgs[type];
+}
+
+// ── TABS ──
+function switchTab(tab){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+tab).classList.add('active');
+  document.getElementById('nav-'+tab).classList.add('active');
+  if(tab==='log'){updateTotals();checkSessionLock();}
+}
+function goToday(){ switchTab('pretrade'); }
+
+// ── CALENDAR ──
+function changeMonth(dir){ calDate=new Date(calDate.getFullYear(),calDate.getMonth()+dir,1); renderCalendar(); }
+function renderCalendar(){
+  const y=calDate.getFullYear(),m=calDate.getMonth();
+  document.getElementById('calMonthLabel').textContent=`${MONTHS[m]} ${y}`;
+  document.getElementById('calDow').innerHTML=DOWS.map(d=>`<div class="cal-dow">${d}</div>`).join('');
+  const first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate(), today=new Date();
+  let html='';
+  for(let i=0;i<first;i++) html+='<div></div>';
+  for(let d=1;d<=days;d++){
+    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday=today.getFullYear()===y&&today.getMonth()===m&&today.getDate()===d;
+    const isSel=selectedDate===ds;
+    const dayTrades=trades.filter(t=>t.date===ds);
+    const pnl=dayTrades.reduce((s,t)=>s+t.pnlHKD,0);
+    let cls='cal-day';
+    if(isToday) cls+=' today';
+    if(isSel) cls+=' selected';
+    if(econEvents[ds]) cls+=' has-event';
+    if(quadWitchDates[ds]) cls+=' quad-witch';
+    else if(monthlyOptsDates[ds]) cls+=' monthly-opts';
+    html+=`<div class="${cls}" onclick="selectDay('${ds}')"><span>${d}</span>${dayTrades.length?`<div class="cal-dot ${pnl>=0?'profit':'loss'}"></div>`:''}</div>`;
+  }
+  document.getElementById('calGrid').innerHTML=html;
+  if(selectedDate) renderDayDetail(selectedDate);
+}
+function selectDay(ds){ selectedDate=ds; renderCalendar(); }
+function renderDayDetail(ds){
+  const el=document.getElementById('dayDetail');
+  const dt=trades.filter(t=>t.date===ds);
+  const pnl=dt.reduce((s,t)=>s+t.pnlHKD,0);
+  const banked=dt.reduce((s,t)=>s+t.withdrawnHKD,0);
+  const ev=econEvents[ds], isQ=quadWitchDates[ds], isM=monthlyOptsDates[ds];
+  let html=`<div class="day-detail"><h3>📅 ${ds}</h3>
+    <div class="day-stat"><span>Dots eaten</span><span>${dt.length}</span></div>
+    <div class="day-stat"><span>AM Session</span><span>${dt.filter(t=>t.session==='AM').length}/3</span></div>
+    <div class="day-stat"><span>PM Session</span><span>${dt.filter(t=>t.session==='PM').length}/3</span></div>
+    <div class="day-stat"><span>P&L</span><span style="color:${pnl>=0?'var(--green-ok)':'var(--ghost-red)'}">${pnl>=0?'+':''}HK$${pnl.toFixed(0)}</span></div>
+    <div class="day-stat"><span>Banked 🏦</span><span style="color:var(--ghost-cyan)">HK$${banked.toFixed(0)}</span></div>`;
+  if(ev)  html+=`<div class="event-badge econ">⚡ ${ev} — HIGH IMPACT EVENT</div>`;
+  if(isQ) html+=`<div class="event-badge quad">🧙 QUADRUPLE WITCHING — Ghost storm incoming! Reduce size or stay out entirely.</div>`;
+  if(isM) html+=`<div class="event-badge mopt">📅 MONTHLY OPTIONS EXPIRY — Expect pinning & vol near major strikes.</div>`;
+  html+='</div>';
+  el.innerHTML=html; el.style.display='block';
+}
+
+// ── HISTORY ──
+function renderTradeHistory(){
+  const el=document.getElementById('tradeHistory'), no=document.getElementById('noTrades');
+  if(!trades.length){el.innerHTML='';no.style.display='block';return;}
+  no.style.display='none';
+  el.innerHTML=[...trades].sort((a,b)=>b.id-a.id).slice(0,30).map(t=>`
+    <div class="trade-entry">
+      <div style="display:flex;align-items:center;min-width:0">
+        ${t.photoData?`<img class="te-thumb" src="${t.photoData}" alt="chart">`:''}
+        <div><div class="te-sym">${t.instrument} <span style="font-size:10px;color:var(--text-dim)">${t.direction}</span></div>
+        <div class="te-meta">${t.date} · ${t.session}${t.account?' · '+t.account:''}</div></div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div class="te-pnl ${t.pnlHKD>=0?'pos':'neg'}">${t.pnlHKD>=0?'+':''}HK$${Math.abs(t.pnlHKD).toFixed(0)}</div>
+        <div class="te-withdraw">🏦HK$${t.withdrawnHKD.toFixed(0)}</div>
+      </div>
+    </div>`).join('');
+}
+function updateTotals(){
+  const total=trades.reduce((s,t)=>s+t.pnlHKD,0);
+  const banked=trades.reduce((s,t)=>s+t.withdrawnHKD,0);
+  const today=getTodayStr(), wins=trades.filter(t=>t.pnlHKD>0).length;
+  document.getElementById('totalPnl').textContent=`${total>=0?'+':''}HK$${total.toFixed(0)}`;
+  document.getElementById('totalSavedBar').textContent=`🏦 BANKED: HK$${banked.toFixed(0)}`;
+  document.getElementById('todayCount').textContent=trades.filter(t=>t.date===today).length;
+  document.getElementById('winRate').textContent=trades.length?Math.round(wins/trades.length*100)+'%':'—';
+}
+
+// ── PRE-TRADE ──
+function renderPreChecklist(){
+  document.getElementById('preChecklist').innerHTML=preCheckItems.map(item=>`
+    <div class="check-item" onclick="togglePreCheck('${item.id}')">
+      <div class="check-box ${preChecked[item.id]?'checked':''}">${preChecked[item.id]?'●':''}</div>
+      <div><div class="check-label">${item.label}</div><div class="check-sub">${item.sub}</div></div>
+    </div>`).join('');
+}
+function togglePreCheck(id){ preChecked[id]=!preChecked[id]; renderPreChecklist(); updateReadiness(); }
+function setMood(el,score){
+  currentMood=score;
+  document.querySelectorAll('.ghost-btn').forEach(b=>{ b.className='ghost-btn'; });
+  el.className='ghost-btn sel-'+score;
+  updateReadiness();
+}
+function updateEnergy(val){
+  currentEnergy=parseInt(val);
+  document.getElementById('energyVal').textContent=val;
+  document.getElementById('cautionBox').classList.toggle('show',currentEnergy<=3);
+  updateReadiness();
+}
+function updateReadiness(){
+  const cc=Object.values(preChecked).filter(Boolean).length;
+  const score=(cc/preCheckItems.length)*0.5+(currentMood/5)*0.25+(currentEnergy/10)*0.25;
+  const fill=document.getElementById('readinessFill'), sig=document.getElementById('readinessSignal');
+  fill.style.width=Math.round(score*100)+'%';
+  if(score>=0.75){
+    fill.style.background='var(--green-ok)'; fill.style.boxShadow='0 0 10px var(--green-ok)';
+    sig.innerHTML='🟢 POWER PELLET READY!<br>GO EAT THOSE PIPS'; sig.style.color='var(--green-ok)';
+  } else if(score>=0.45){
+    fill.style.background='var(--ghost-orange)'; fill.style.boxShadow='0 0 8px var(--ghost-orange)';
+    sig.innerHTML='🟡 CAUTION MODE<br>TRADE SMALLER TODAY'; sig.style.color='var(--ghost-orange)';
+  } else if(currentMood>0||cc>0){
+    fill.style.background='var(--ghost-red)'; fill.style.boxShadow='0 0 8px var(--ghost-red)';
+    sig.innerHTML='🔴 GHOST WILL CATCH YOU<br>REST IS THE BEST TRADE'; sig.style.color='var(--ghost-red)';
+  } else {
+    fill.style.width='0'; fill.style.boxShadow='none';
+    sig.textContent='COMPLETE CHECKLIST TO POWER UP'; sig.style.color='var(--text-dim)';
+  }
+}
+
+// ── TA ──
+function setTradeType(t){ currentTradeType=t; document.getElementById('ttShort').classList.toggle('active',t==='short'); document.getElementById('ttLong').classList.toggle('active',t==='long'); }
+function selectAMD(p){ selectedAMD=selectedAMD===p?null:p; ['A','M','D'].forEach(x=>document.getElementById('amd'+x).classList.toggle('active',selectedAMD===x)); }
+function togglePill(el){ el.classList.toggle('active'); }
+function renderElemChecklist(){
+  document.getElementById('elemChecklist').innerHTML=elemItems.map(item=>`
+    <div class="check-item" onclick="toggleElem('${item.id}')">
+      <div class="check-box ${elemChecked[item.id]?'checked':''}">${elemChecked[item.id]?'●':''}</div>
+      <div><div class="check-label">${item.label}</div><div class="check-sub">${item.sub}</div></div>
+    </div>`).join('');
+  document.getElementById('confScore').textContent=Object.values(elemChecked).filter(Boolean).length;
+}
+function toggleElem(id){ elemChecked[id]=!elemChecked[id]; renderElemChecklist(); }
+
+// ── LOG TRADE ──
+function setSession(s){ currentSession=s; document.getElementById('sessAM').classList.toggle('active',s==='AM'); document.getElementById('sessPM').classList.toggle('active',s==='PM'); checkSessionLock(); }
+function setDirection(d){ currentDirection=d; document.getElementById('dirLong').classList.toggle('active',d==='Long'); document.getElementById('dirShort').classList.toggle('active',d==='Short'); }
+function setCurrency(c){ currentCurrency=c; document.getElementById('curHKD').classList.toggle('active',c==='HKD'); document.getElementById('curUSD').classList.toggle('active',c==='USD'); updateConvertedHint(); }
+function updateConvertedHint(){
+  const amt=parseFloat(document.getElementById('pnlAmount').value);
+  document.getElementById('convertedHint').textContent=(!isNaN(amt)&&currentCurrency==='USD')?`≈ HK$${(amt*USD_TO_HKD).toFixed(2)} @ ${USD_TO_HKD}`:'';
+  updateWithdrawHint();
+}
+function updateWithdrawHint(){
+  const pnlRaw = parseFloat(document.getElementById('pnlAmount').value);
+  const wdAmt  = parseFloat(document.getElementById('withdrawAmt').value) || 0;
+  const hint   = document.getElementById('withdrawHint');
+  if(isNaN(pnlRaw)){ hint.textContent=''; return; }
+  const pnlHKD = currentCurrency==='USD' ? pnlRaw*USD_TO_HKD : pnlRaw;
+  const wdHKD  = currentCurrency==='USD' ? wdAmt*USD_TO_HKD : wdAmt;
+  const kept   = pnlHKD - wdHKD;
+  hint.textContent = wdAmt > 0
+    ? `BANKED: HK$${wdHKD.toFixed(0)}  |  KEEP/REINVEST: HK$${kept.toFixed(0)}`
+    : 'No withdrawal — all stays in account';
+}
+function handlePhoto(input){
+  const file=input.files[0]; if(!file) return;
+  currentPhotoName=file.name;
+  document.getElementById('photoName').textContent='📎 '+file.name;
+  const r=new FileReader();
+  r.onload=e=>{ currentPhotoData=e.target.result; const p=document.getElementById('photoPreview'); p.src=currentPhotoData; p.style.display='block'; document.querySelector('.photo-upload-text').textContent='CHART LOCKED IN ✓'; };
+  r.readAsDataURL(file);
+}
+function checkSessionLock(){
+  const today=getTodayStr();
+  const count=trades.filter(t=>t.date===today&&t.session===currentSession).length;
+  const lock=document.getElementById('sessionLockMsg'), btn=document.getElementById('logBtn');
+  if(count>=3){
+    lock.innerHTML=`👾 ${currentSession} SESSION FULL (3/3)<br><br>GAME OVER FOR THIS SESSION<br>REST · RECHARGE · RETURN<br><br>休息係最好嘅策略 🟡`;
+    lock.classList.add('show'); btn.disabled=true;
+  } else {
+    lock.classList.remove('show'); btn.disabled=false;
+    btn.textContent=count===2?'⚠️ LAST DOT — EAT WISELY!':'🟡 EAT THIS DOT — SAVE HUNT';
+  }
+}
+function getTodayStr(){ const t=new Date(); return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`; }
+function logTrade(){
+  const instrument=document.getElementById('instrument').value.trim();
+  const pnlRaw=parseFloat(document.getElementById('pnlAmount').value);
+  const wdRaw =parseFloat(document.getElementById('withdrawAmt').value)||0;
+  const notes=document.getElementById('tradeNotes').value.trim();
+  if(!instrument){ showToast('NAME YOUR PREY FIRST! 👾'); return; }
+  if(isNaN(pnlRaw)){ showToast('HOW MANY DOTS?! 🟡'); return; }
+  const today=getTodayStr();
+  if(trades.filter(t=>t.date===today&&t.session===currentSession).length>=3){ showToast('SESSION FULL! REST 👾'); return; }
+  const pnlHKD=Math.round((currentCurrency==='USD'?pnlRaw*USD_TO_HKD:pnlRaw)*100)/100;
+  const withdrawnHKD=Math.round((currentCurrency==='USD'?wdRaw*USD_TO_HKD:wdRaw)*100)/100;
+  const trade={ id:Date.now(),date:today,session:currentSession,account:currentAccount,instrument,direction:currentDirection,tradeType:currentTradeType,amdPhase:selectedAMD,pnlHKD,withdrawnHKD,currency:currentCurrency,notes,photoData:currentPhotoData,photoName:currentPhotoName,elemUsed:Object.keys(elemChecked).filter(k=>elemChecked[k]) };
+  trades.push(trade);
+  try{ localStorage.setItem('mcc_v3',JSON.stringify(trades)); }
+  catch(e){ localStorage.setItem('mcc_v3',JSON.stringify(trades.map(t=>({...t,photoData:null})))); }
+  document.getElementById('instrument').value='';
+  document.getElementById('pnlAmount').value='';
+  document.getElementById('withdrawAmt').value='';
+  document.getElementById('tradeNotes').value='';
+  document.getElementById('photoPreview').style.display='none';
+  document.querySelector('.photo-upload-text').textContent='TAP TO SNAP YOUR CHART';
+  document.getElementById('photoName').textContent='';
+  document.getElementById('convertedHint').textContent='';
+  document.getElementById('withdrawHint').textContent='';
+  currentPhotoData=null; currentPhotoName='';
+  renderCalendar(); renderTradeHistory(); updateTotals(); checkSessionLock();
+  showToast(pnlHKD>=0?`🟡 DOT EATEN! +HK$${pnlHKD.toFixed(0)}`:`👻 GHOST GOT YOU! HK$${pnlHKD.toFixed(0)}`);
+}
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.style.display='block'; t.style.opacity='1';
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>{ t.style.opacity='0'; setTimeout(()=>{t.style.display='none';},300); },2400);
+}
+</script>
+</body>
+</html>
